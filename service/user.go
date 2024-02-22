@@ -15,7 +15,7 @@ import (
 type UserService struct{}
 
 // Register 注册函数
-func (s *UserService) Register(mobile, plainpwd, nickname, avatar, sex string) (user *model.User, err error) {
+func (u *UserService) Register(mobile, plainPwd, nickname, avatar, sex string) (user *model.User, err error) {
 	user = new(model.User)
 	_, err = DBEngin.Where("mobile = ?", mobile).Get(user)
 	if err != nil {
@@ -31,11 +31,10 @@ func (s *UserService) Register(mobile, plainpwd, nickname, avatar, sex string) (
 	user.Nickname = nickname
 	user.Sex = sex
 	user.Salt = fmt.Sprintf("%06d", rand.Int31n(100000))
-	user.Passwd = util.MakePasswd(plainpwd, user.Salt)
+	user.Passwd = util.MakePasswd(plainPwd, user.Salt)
 	// 创建时间，用来统计用户的注册量
 	user.Createat = time.Now()
 	user.Token = fmt.Sprintf("%08d", rand.Int31n(10000000))
-
 	// 插入InsertOne
 	_, err = DBEngin.Insert(user)
 
@@ -43,6 +42,24 @@ func (s *UserService) Register(mobile, plainpwd, nickname, avatar, sex string) (
 }
 
 // Login 登录函数
-func (s *UserService) Login(mobile, plainpwd string) (user *model.User, err error) {
-	return &model.User{}, nil
+func (u *UserService) Login(mobile, plainPwd string) (user *model.User, err error) {
+	user = new(model.User)
+	// 通过手机号查询用户
+	DBEngin.Where("mobile = ?", mobile).Get(user)
+	if user.ID == 0 {
+		return &model.User{}, errors.New("该用户不存在")
+	}
+
+	// 比对密码
+	if util.ValidatePasswd(plainPwd, user.Salt, user.Passwd) == false {
+		return &model.User{}, errors.New("帐号或密码错误")
+	}
+
+	// 刷新 token 安全
+	str := fmt.Sprintf("%d", time.Now().Unix())
+	user.Token = util.MD5Encode(str)
+
+	// 返回数据
+	_, err = DBEngin.ID(user.ID).Cols("token").Update(user)
+	return
 }

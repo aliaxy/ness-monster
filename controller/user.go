@@ -19,18 +19,12 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	mobile := r.PostForm.Get("mobile")
 	passwd := r.PostForm.Get("passwd")
 
-	loginOk := false
-	if mobile == "123456789" && passwd == "123456" {
-		loginOk = true
-	}
+	user, err := userService.Login(mobile, passwd)
 
-	if loginOk {
-		data := make(map[string]interface{})
-		data["id"] = 1
-		data["token"] = "test"
-		util.RespSuccess(w, data, "")
+	if err != nil {
+		util.RespFail(w, err.Error())
 	} else {
-		util.RespFail(w, "密码不正确")
+		util.RespSuccess(w, user, "")
 	}
 }
 
@@ -38,7 +32,6 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 func UserRegister(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm() // 解析参数，默认是不会解析的
 	mobile := r.PostForm.Get("mobile")
-	fmt.Println(mobile)
 	passwd := r.PostForm.Get("passwd")
 	nickname := fmt.Sprintf("user%06d", rand.Int31())
 	avator := ""
@@ -46,8 +39,8 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 
 	user, err := userService.Register(mobile, passwd, nickname, avator, sex)
 	if err != nil {
-		util.RespSuccess(w, user, "")
+		util.RespFail(w, "注册失败")
 	} else {
-		util.RespFail(w, "密码不正确")
+		util.RespSuccess(w, user, "")
 	}
 }
