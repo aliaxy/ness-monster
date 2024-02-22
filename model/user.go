@@ -12,7 +12,7 @@ const (
 // User 用户
 type User struct {
 	// 用户 id
-	ID int64 `xorm:"'id' pk autoincr bigint(20)" form:"id" json:"id"`
+	Id int64 `xorm:"pk autoincr bigint(20)" form:"id" json:"id"`
 	// 手机号 唯一的
 	Mobile string `xorm:"varchar(20)" form:"mobile" json:"mobile"`
 	// 用户密码 f(plainpwd+salt),MD5

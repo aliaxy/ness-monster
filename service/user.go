@@ -22,7 +22,7 @@ func (u *UserService) Register(mobile, plainPwd, nickname, avatar, sex string) (
 		return
 	}
 
-	if user.ID > 0 {
+	if user.Id > 0 {
 		return &model.User{}, errors.New("该手机号已经注册")
 	}
 
@@ -46,7 +46,7 @@ func (u *UserService) Login(mobile, plainPwd string) (user *model.User, err erro
 	user = new(model.User)
 	// 通过手机号查询用户
 	DBEngin.Where("mobile = ?", mobile).Get(user)
-	if user.ID == 0 {
+	if user.Id == 0 {
 		return &model.User{}, errors.New("该用户不存在")
 	}
 
@@ -60,6 +60,6 @@ func (u *UserService) Login(mobile, plainPwd string) (user *model.User, err erro
 	user.Token = util.MD5Encode(str)
 
 	// 返回数据
-	_, err = DBEngin.ID(user.ID).Cols("token").Update(user)
+	_, err = DBEngin.ID(user.Id).Cols("token").Update(user)
 	return
 }

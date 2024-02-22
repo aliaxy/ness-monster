@@ -28,7 +28,10 @@ func init() {
 	// 数据库最大链接数，线上环境自己设置，这个直接影响数据库的性能
 	DBEngin.SetMaxOpenConns(2)
 
-	DBEngin.Sync2(new(model.User))
+	DBEngin.Sync2(new(model.User),
+		new(model.Contact),
+		new(model.Community),
+	)
 
 	fmt.Println("init data base ok")
 }

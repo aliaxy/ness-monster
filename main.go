@@ -7,12 +7,9 @@ import (
 	"net/http"
 
 	"ness_monster/controller"
-	"ness_monster/service"
 
 	_ "github.com/go-sql-driver/mysql"
 )
-
-var userService service.UserService
 
 // RegisterView 注册模版页面
 func RegisterView() {
@@ -36,6 +33,10 @@ func main() {
 	// 绑定请求和处理函数
 	http.HandleFunc("/user/login", controller.UserLogin)
 	http.HandleFunc("/user/register", controller.UserRegister)
+	http.HandleFunc("/contact/loadcommunity", controller.LoadCommunity)
+	http.HandleFunc("/contact/loadfriend", controller.LoadFriend)
+	http.HandleFunc("/contact/joincommunity", controller.JoinCommunity)
+	http.HandleFunc("/contact/addfriend", controller.Addfriend)
 
 	// 提供静态资源支持
 	http.Handle("/asset/", http.FileServer(http.Dir(".")))
