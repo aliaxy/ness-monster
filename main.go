@@ -2,58 +2,46 @@
 package main
 
 import (
-	"encoding/json"
+	"html/template"
 	"log"
 	"net/http"
+
+	"ness_monster/controller"
+	"ness_monster/service"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
-func userLogin(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm() // 解析参数，默认是不会解析的
-	mobile := r.PostForm.Get("mobile")
-	password := r.PostForm.Get("password")
+var userService service.UserService
 
-	loginOk := false
-	if mobile == "123456789" && password == "123456" {
-		loginOk = true
-	}
-
-	if loginOk {
-		data := make(map[string]interface{})
-		data["id"] = 1
-		data["token"] = "test"
-		Resp(w, 0, "", data)
-	} else {
-		Resp(w, -1, "密码不正确", nil)
-	}
-}
-
-type H struct {
-	Code int         `json:"code"`
-	Msg  string      `json:"msg"`
-	Data interface{} `json:"data,omitempty"`
-}
-
-func Resp(w http.ResponseWriter, code int, msg string, data interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	h := H{
-		Code: code,
-		Msg:  msg,
-		Data: data,
-	}
-
-	result, err := json.Marshal(h)
+// RegisterView 注册模版页面
+func RegisterView() {
+	tpl, err := template.ParseGlob("view/**/*")
 	if err != nil {
-		log.Panicln(err.Error())
+		log.Fatal(err.Error())
 	}
 
-	w.Write(result)
+	for _, v := range tpl.Templates() {
+		tplname := v.Name()
+		if tplname[0] != '/' {
+			continue
+		}
+		http.HandleFunc(tplname, func(writer http.ResponseWriter, request *http.Request) {
+			tpl.ExecuteTemplate(writer, tplname, nil)
+		})
+	}
 }
 
 func main() {
 	// 绑定请求和处理函数
-	http.HandleFunc("/user/login", userLogin)
+	http.HandleFunc("/user/login", controller.UserLogin)
+	http.HandleFunc("/user/register", controller.UserRegister)
+
+	// 提供静态资源支持
+	http.Handle("/asset/", http.FileServer(http.Dir(".")))
+
+	// usre/login.shtml
+	RegisterView()
 
 	// 启动 HTTP 服务
 	http.ListenAndServe(":8080", nil)
