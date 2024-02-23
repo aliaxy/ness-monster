@@ -63,3 +63,10 @@ func (u *UserService) Login(mobile, plainPwd string) (user *model.User, err erro
 	_, err = DBEngin.ID(user.Id).Cols("token").Update(user)
 	return
 }
+
+// Find 查找用户
+func (u *UserService) Find(userID int64) (user *model.User) {
+	user = new(model.User)
+	DBEngin.ID(userID).Get(user)
+	return
+}
