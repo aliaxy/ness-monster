@@ -2,11 +2,14 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"sync"
+
+	"ness_monster/model"
 
 	"github.com/gorilla/websocket"
 	"gopkg.in/fatih/set.v0"
@@ -95,6 +98,7 @@ func recvproc(node *Node) {
 		}
 		// 对data进一步处理
 		fmt.Printf("recv<=%s", data)
+		dispatch(data)
 	}
 }
 
@@ -113,4 +117,24 @@ func checkToken(userID int64, token string) bool {
 	// 从数据库里面查询并比对
 	user := userService.Find(userID)
 	return user.Token == token
+}
+
+// 解析
+func dispatch(data []byte) {
+	// todo 转成message对象
+	// todo 根据cmd参数处理逻辑
+	msg := new(model.Message)
+	err := json.Unmarshal(data, msg)
+	if err != nil {
+		log.Printf(err.Error())
+		return
+	}
+	switch msg.Cmd {
+	case model.CmdSingleMsg: // 如果是单对单消息,直接将消息转发出去
+		sendMsg(msg.Dstid, data)
+	case model.CmdRoomMsg: // 群聊消息,需要知道
+		// todo 群聊转发逻辑
+	case model.CmdHeart: // 心跳事件，保证网络的持久性，如果接到数据说明数据是正常的
+		// 啥也别做
+	}
 }

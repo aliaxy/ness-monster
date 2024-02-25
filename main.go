@@ -38,9 +38,11 @@ func main() {
 	http.HandleFunc("/contact/joincommunity", controller.JoinCommunity)
 	http.HandleFunc("/contact/addfriend", controller.Addfriend)
 	http.HandleFunc("/chat", controller.Chat)
+	http.HandleFunc("/attach/upload", controller.Upload)
 
 	// 提供静态资源支持
 	http.Handle("/asset/", http.FileServer(http.Dir(".")))
+	http.Handle("/mnt/", http.FileServer(http.Dir(".")))
 
 	// usre/login.shtml
 	RegisterView()
