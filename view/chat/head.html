@@ -81,7 +81,8 @@
         formdata.append("file", dom.files[0])
         xhr.send(formdata);
     }
-    function uploadblob(uri, blob, fn) {
+
+    function uploadblob(uri, blob, filetype, fn) {
         var xhr = new XMLHttpRequest();
         xhr.open("POST", "//" + location.host + "/" + uri, true);
         // 添加http头，发送信息至服务器时内容编码类型
@@ -92,12 +93,18 @@
         };
         var _data = [];
         var formdata = new FormData();
-        formdata.append("filetype", ".mp3");
+        formdata.append("filetype", filetype);
         if (!!userId()) {
             formdata.append("userid", userId());
         }
         formdata.append("file", blob)
         xhr.send(formdata);
+    }
+    function uploadaudio(uri, blob, fn) {
+        uploadblob(uri, blob, ".mp3", fn)
+    }
+    function uploadvideo(uri, blob, fn) {
+        uploadblob(uri, blob, ".mp4", fn)
     }
 </script>
 
