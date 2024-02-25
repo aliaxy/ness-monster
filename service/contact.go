@@ -79,6 +79,19 @@ func (c *ContactService) SearchComunity(userID int64) []model.Community {
 	return coms
 }
 
+// SearchComunityIds 查找群
+func (c *ContactService) SearchComunityIds(userID int64) (comIds []int64) {
+	// todo 获取用户全部群ID
+	conconts := make([]model.Contact, 0)
+	comIds = make([]int64, 0)
+
+	DBEngin.Where("ownerid = ? and cate = ?", userID, model.ConcatCateCommunity).Find(&conconts)
+	for _, v := range conconts {
+		comIds = append(comIds, v.Dstobj)
+	}
+	return comIds
+}
+
 // JoinCommunity 加群
 func (c *ContactService) JoinCommunity(userID, comID int64) error {
 	cot := model.Contact{
@@ -92,12 +105,11 @@ func (c *ContactService) JoinCommunity(userID, comID int64) error {
 		_, err := DBEngin.InsertOne(cot)
 		return err
 	}
-
 	return nil
 }
 
 // CreateCommunity 建群
-func (c *ContactService) CreateCommunity(comm model.Community) (ret model.Community, err error) {
+func (c *ContactService) CreateCommunity(comm *model.Community) (ret model.Community, err error) {
 	if len(comm.Name) == 0 {
 		err = errors.New("缺少群名称")
 		return ret, err
@@ -119,7 +131,7 @@ func (c *ContactService) CreateCommunity(comm model.Community) (ret model.Commun
 	comm.Createat = time.Now()
 	session := DBEngin.NewSession()
 	session.Begin()
-	_, err = session.InsertOne(&comm)
+	_, err = session.InsertOne(comm)
 	if err != nil {
 		session.Rollback()
 		return com, err

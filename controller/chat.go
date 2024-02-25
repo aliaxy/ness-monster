@@ -60,6 +60,11 @@ func Chat(writer http.ResponseWriter, request *http.Request) {
 		GroupSets: set.New(set.ThreadSafe),
 	}
 
+	comIds := contactService.SearchComunityIds(userID)
+	for _, v := range comIds {
+		node.GroupSets.Add(v)
+	}
+
 	// userid 和 node 形成绑定关系
 	rwlocker.Lock() // 操作数据量比较大，所以添加了读写锁
 	clientMap[userID] = node
@@ -71,6 +76,7 @@ func Chat(writer http.ResponseWriter, request *http.Request) {
 	// 完成接收逻辑
 	go recvproc(node)
 
+	log.Printf("<-%d\n", userID)
 	sendMsg(userID, []byte("hello,world!"))
 }
 
@@ -134,7 +140,23 @@ func dispatch(data []byte) {
 		sendMsg(msg.Dstid, data)
 	case model.CmdRoomMsg: // 群聊消息,需要知道
 		// todo 群聊转发逻辑
+		for _, v := range clientMap {
+			if v.GroupSets.Has(msg.Dstid) {
+				v.DataQueue <- data
+			}
+		}
 	case model.CmdHeart: // 心跳事件，保证网络的持久性，如果接到数据说明数据是正常的
 		// 啥也别做
 	}
+}
+
+// AddGroupID 加群
+func AddGroupID(userID, gid int64) {
+	// 取得 node
+	rwlocker.Lock()
+	node, ok := clientMap[userID]
+	if ok {
+		node.GroupSets.Add(gid)
+	}
+	rwlocker.Unlock()
 }

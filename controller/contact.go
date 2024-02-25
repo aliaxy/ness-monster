@@ -2,9 +2,11 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
 	"ness_monster/arg"
+	"ness_monster/model"
 	"ness_monster/service"
 	"ness_monster/util"
 )
@@ -38,10 +40,14 @@ func JoinCommunity(w http.ResponseWriter, req *http.Request) {
 
 	// 如果这个用的上,那么可以直接
 	util.Bind(req, arg)
+
+	fmt.Println(arg.Userid)
+
 	err := contactService.JoinCommunity(arg.Userid, arg.Dstid)
 	if err != nil {
 		util.RespFail(w, err.Error())
 	} else {
+		AddGroupID(arg.Userid, arg.Dstid)
 		util.RespSuccess(w, nil, "")
 	}
 }
@@ -58,5 +64,17 @@ func Addfriend(w http.ResponseWriter, req *http.Request) {
 		util.RespFail(w, err.Error())
 	} else {
 		util.RespSuccess(w, nil, "好友添加成功")
+	}
+}
+
+// Createcommunity 创建群
+func Createcommunity(w http.ResponseWriter, req *http.Request) {
+	arg := new(model.Community)
+	util.Bind(req, arg)
+	com, err := contactService.CreateCommunity(arg)
+	if err != nil {
+		util.RespFail(w, err.Error())
+	} else {
+		util.RespSuccess(w, com, "")
 	}
 }

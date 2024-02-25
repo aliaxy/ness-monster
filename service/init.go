@@ -26,7 +26,7 @@ func init() {
 	// 是否显示sql语句
 	DBEngin.ShowSQL(true)
 	// 数据库最大链接数，线上环境自己设置，这个直接影响数据库的性能
-	DBEngin.SetMaxOpenConns(2)
+	DBEngin.SetMaxOpenConns(3)
 
 	DBEngin.Sync2(new(model.User),
 		new(model.Contact),

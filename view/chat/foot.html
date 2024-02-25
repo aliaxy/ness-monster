@@ -370,8 +370,8 @@
                 },
                 _joincomunity: function (dstobj) {
                     var that = this;
-                    post("contact/joincommunity", { dstid: dstobj }, function (res) {
-                        if (res.code == 200) {
+                    post("contact/joincommunity", { dstid: dstobj, "userid": userId() }, function (res) {
+                        if (res.code == 0) {
                             mui.toast("添加成功");
 
                             that.loadcommunitys();
