@@ -76,27 +76,3 @@ const (
 	EndPoint        = "oss-cn-shenzhen.aliyuncs.com"
 	Bucket          = "winliondev"
 )
-
-// 权限设置为公共读状态
-// 需要安装
-func uploadOss(writer http.ResponseWriter,
-	request *http.Request,
-) {
-	// todo 获得上传的文件
-
-	// todo 获得文件后缀.png/.mp3
-
-	// todo 初始化ossclient
-
-	// todo 获得bucket
-
-	// todo 设置文件名称
-
-	// todo 通过bucket上传
-
-	// todo 获得url地址
-	url := ""
-
-	// todo 响应到前端
-	util.RespSuccess(writer, url, "")
-}
